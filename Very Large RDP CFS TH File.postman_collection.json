@@ -1,0 +1,291 @@
+{
+	"info": {
+		"_postman_id": "70c43a4a-b118-436e-9d3a-54202c47ee14",
+		"name": "Very Large RDP CFS TH File",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3094510"
+	},
+	"item": [
+		{
+			"name": "Get Access Token - RDP",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//var jsonData = pm.response.json();",
+							"//pm.globals.set(\"ACCESS_TOKEN\", jsonData.access_token);",
+							"//pm.globals.set(\"REFRESH_TOKEN\", jsonData.refresh_token);",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"postman.setEnvironmentVariable(\"ACCESS_TOKEN\", jsonData.access_token);",
+							"postman.setEnvironmentVariable(\"REFRESH_TOKEN\", jsonData.refresh_token);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "{{USERNAME}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{PASSWORD}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "trapi",
+							"type": "text"
+						},
+						{
+							"key": "takeExclusiveSignOnControl",
+							"value": "true",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{CLIENT_ID}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://{{RDP_HOST}}/auth/oauth2/{{RDP_VERSION_AUTH}}/token",
+					"protocol": "https",
+					"host": [
+						"{{RDP_HOST}}"
+					],
+					"path": [
+						"auth",
+						"oauth2",
+						"{{RDP_VERSION_AUTH}}",
+						"token"
+					]
+				},
+				"description": "Gets the Access and Refresh tokens"
+			},
+			"response": []
+		},
+		{
+			"name": "Get TH File Details by File ID Very large file",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"pm.collectionVariables.set(\"fileSizeInBytes\", jsonData.fileSizeInBytes);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{RDP_HOST}}/file-store/{{RDP_VERSION}}/files/{{fileIdVeryLargeFile}}",
+					"protocol": "https",
+					"host": [
+						"{{RDP_HOST}}"
+					],
+					"path": [
+						"file-store",
+						"{{RDP_VERSION}}",
+						"files",
+						"{{fileIdVeryLargeFile}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get TH File by File ID Location (No Redirect) Very Large",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"pm.collectionVariables.set(\"responseUrl\", jsonData.url);\r",
+							"postman.setEnvironmentVariable(\"responseUrl\", jsonData.url);\r",
+							"pm.collectionVariables.set(\"rangeStart\", 0);\r",
+							"pm.collectionVariables.set(\"rangeChunk\", 100000000);\r",
+							"//pm.collectionVariables.set(\"rangeChunk\", 200000000);\r",
+							"pm.collectionVariables.set(\"rangeEnd\", (pm.collectionVariables.get(\"rangeStart\") +pm.collectionVariables.get(\"rangeChunk\") -1));\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://{{RDP_HOST}}/file-store/{{RDP_VERSION}}/files/{{fileIdVeryLargeFile}}/stream?doNotRedirect=true",
+					"protocol": "https",
+					"host": [
+						"{{RDP_HOST}}"
+					],
+					"path": [
+						"file-store",
+						"{{RDP_VERSION}}",
+						"files",
+						"{{fileIdVeryLargeFile}}",
+						"stream"
+					],
+					"query": [
+						{
+							"key": "doNotRedirect",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get TH File by direct URL- Very Large File",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"console.log(\"Just obtained: \",pm.collectionVariables.get(\"rangeStart\")+ \"-\"+ pm.collectionVariables.get(\"rangeEnd\")+\" out of \"+pm.collectionVariables.get(\"fileSizeInBytes\"));\r",
+							"\r",
+							"pm.collectionVariables.set(\"rangeStart\", (pm.collectionVariables.get(\"rangeStart\") + pm.collectionVariables.get(\"rangeChunk\")));\r",
+							"pm.collectionVariables.set(\"rangeEnd\", (pm.collectionVariables.get(\"rangeStart\") +pm.collectionVariables.get(\"rangeChunk\") -1));\r",
+							"\r",
+							"if (pm.collectionVariables.get(\"rangeStart\") <= pm.collectionVariables.get(\"fileSizeInBytes\") ){\r",
+							"    if (pm.collectionVariables.get(\"rangeEnd\") > (pm.collectionVariables.get(\"fileSizeInBytes\") -1)) {\r",
+							"\r",
+							"        pm.collectionVariables.set(\"rangeEnd\", (pm.collectionVariables.get(\"fileSizeInBytes\") -1));\r",
+							"    }\r",
+							"    console.log(\"Setting up for the next iteration: \"+ pm.collectionVariables.get(\"rangeStart\")+ \"-\"+pm.collectionVariables.get(\"rangeEnd\"));\r",
+							"    postman.setNextRequest(\"Get TH File by direct URL- Very Large File\");\r",
+							"} else {\r",
+							"     console.log(\"this was the last request\")\r",
+							"    postman.setNextRequest(null);\r",
+							"}\r",
+							"\r",
+							"//console.log(\"ResponseContentInfo\"+pm.response.ResponseContentInfo);\r",
+							"//console.log('btoa(pm.response.stream)='+btoa(pm.response.stream));\r",
+							"console.log('pm.response.responseSize='+pm.response.responseSize)\r",
+							"\r",
+							"setTimeout(() => {\r",
+							"    pm.sendRequest({\r",
+							"        url: 'http://localhost:3000/write',\r",
+							"        method: 'POST',\r",
+							"         header: {\r",
+							"        'Content-Type': 'application/octet-stream'\r",
+							"    },\r",
+							"    //    encoding: 'binary',\r",
+							"        body: {\r",
+							"            mode: 'raw',\r",
+							"            raw: btoa(pm.response.stream)           \r",
+							"\r",
+							"        }\r",
+							"    }, function (err, res) {\r",
+							"        console.log(res);\r",
+							"    });\r",
+							"}, 50000);\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.request.headers.add({\r",
+							"    key: 'Range',\r",
+							"    value: 'bytes='+pm.collectionVariables.get(\"rangeStart\")+'-'+pm.collectionVariables.get(\"rangeEnd\")\r",
+							"//    value: 'bytes={{rangeStart}}-{{rangeEnd}}'\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Range",
+						"value": "bytes=0-100000000",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{responseUrl}}",
+					"host": [
+						"{{responseUrl}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
